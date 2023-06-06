@@ -11,8 +11,7 @@ The task focused on designing a software system for managing travel packages, de
 
 - `src/`: This directory contains the Java source code files for the solution.
 - `README.md`: This file provides an overview of the repository and its contents.
-- `TaskDocument.pdf`: The task document provided by Nymble.
-- `Nymble_Deck.pdf`: A small deck providing information about Nymble and the position.
+
 
 ## Usage
 
