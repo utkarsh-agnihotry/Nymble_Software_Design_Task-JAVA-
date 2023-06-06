@@ -11,6 +11,9 @@ The task focused on designing a software system for managing travel packages, de
 
 - `src/`: This directory contains the Java source code files for the solution.
 - `README.md`: This file provides an overview of the repository and its contents.
+- HighLevelDiagram.pdf: A higher-level diagram depicting the system architecture and interactions. [Click here ](https://docs.google.com/document/d/1HErFB3vqVtO0jsofpJ2Io3enYcn937Wndx59_1e5Bw4/edit)to view the diagram in detail
+
+
 
 
 ## Usage
@@ -50,3 +53,4 @@ If you have any questions or feedback regarding the solution or the repository, 
 
 
 I hope this README provides a helpful overview of the repository and its contents. If you have any further questions, feel free to let me know.
+[1]: [http://www.github.com/your_contact_info](https://docs.google.com/document/d/1HErFB3vqVtO0jsofpJ2Io3enYcn937Wndx59_1e5Bw4/edit?usp=sharing)
