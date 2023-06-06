@@ -1,0 +1,161 @@
+package utill;
+
+import java.io.InputStream;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+
+import model.Activity;
+import model.Destination;
+import model.Passenger;
+import model.StandardPassenger;
+import model.TravelPackage;
+public class DataRetrieval {
+	
+	
+	 public static Passenger retrievePassengersFromDatabase(Connection connection, String pName,int pNumber) throws SQLException {
+	        String sql = "SELECT * FROM passengers WHERE passenger_name = ? and passenger_number= ?";
+	        Passenger passenger = null;
+	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	            statement.setString(1,pName); 
+	            statement.setInt(2,pNumber); 
+	            
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                while (resultSet.next()) {
+	                	passenger= new Passenger(resultSet.getString("passenger_name"),resultSet.getInt("passenger_number"));
+	                    passenger.setPassengerType(resultSet.getString("passenger_type"));
+	                    passenger.setWalletBalance(resultSet.getDouble("balance"));
+	                    passenger.setTravel_package_id(resultSet.getInt("travel_package_id"));
+	                    passenger.setId(resultSet.getInt("id"));
+	             
+	      
+	                }
+	            }
+	        }
+	        return passenger;
+	    }
+	 public static ArrayList<TravelPackage> retrieveTravelPackageFromDB(Connection connection) throws SQLException {
+		 String sql = "select * from travel_packages";
+		 ArrayList<TravelPackage> packageList = new ArrayList<TravelPackage>();
+		 
+		 try(PreparedStatement stmt = connection.prepareStatement(sql)){
+			 try(ResultSet resultSet = stmt.executeQuery()){
+				 while(resultSet.next()) {
+					 TravelPackage travelPackage = new TravelPackage();
+					 travelPackage.setId(resultSet.getInt("id"));
+					 travelPackage.setPackageName(resultSet.getString("packageName"));
+					 travelPackage.setPassengerCapacity(resultSet.getInt("passenger_capacity"));
+					 
+					 retreiveDestinationFromDb(connection,travelPackage);
+					 packageList.add(travelPackage);
+					 
+				 }
+			 }
+		 }
+		 return packageList;
+	 }
+
+	 public static void retreiveDestinationFromDb(Connection connection,TravelPackage travelPackage) throws SQLException {
+		 String sql = "select * from destinations where travel_package_id=?";
+		 Destination destination;
+		 ArrayList<Destination> destinationList = new ArrayList<Destination>();
+		 try(PreparedStatement stmt = connection.prepareStatement(sql)){
+			 stmt.setInt(1,travelPackage.getId() );
+			 try(ResultSet resultSet = stmt.executeQuery()){
+				 
+				 while(resultSet.next()) {
+					  destination = new Destination();
+					 destination.setDestinationName(resultSet.getString("destination_name"));
+					 destination.setId(resultSet.getInt("id"));
+					 retrieveActivitiesFromDatabase(connection, destination);
+					 destinationList.add(destination);
+					 travelPackage.setItinerary(destinationList);
+
+					 }
+				 }
+	 }
+		 
+	 }
+	    
+	 public static ArrayList<Activity> retrieveActivitiesFromDatabase(Connection connection,Destination destination) throws SQLException {
+		 String sql = "select * from activities where destination_id=?";
+		 Activity activity;
+		 ArrayList<Activity> activityList = new ArrayList<Activity>();
+		 try(PreparedStatement stmt = connection.prepareStatement(sql)){
+			 stmt.setInt(1, destination.getId());
+			 try(ResultSet resultSet = stmt.executeQuery()){
+				 while(resultSet.next()) {
+					  activity = new Activity();  
+					 activity.setActivityName(resultSet.getString("activity_name"));
+					 activity.setDescription(resultSet.getString("description"));
+					 activity.setCost(resultSet.getDouble("cost"));
+					 activity.setCapacity(resultSet.getInt("capacity"));
+					 activityList.add(activity);
+					 destination.setActivitiesList(activityList);
+					 
+					 }
+				 }
+			 
+		 }
+		 return activityList;
+	 }
+	 
+	 public static void retrieveCostAndCapacity(Connection connection,Activity activity,String activtyName) throws SQLException{
+		 String sql = "select cost,capacity from activities where activity_name=?";
+		 ArrayList<Activity> costCapacityList = new ArrayList<Activity>();
+		 try(PreparedStatement stmt = connection.prepareStatement(sql)){
+			 stmt.setString(1,activtyName);
+			 try(ResultSet resultSet = stmt.executeQuery()){
+				 while(resultSet.next()) {
+					 
+					 activity.setCapacity(resultSet.getInt("capacity"));
+					 activity.setCost(resultSet.getDouble("cost"));
+//					 System.out.println(activity.getCapacity()+"---"+activity.getCost());
+					 
+				 }
+				 }
+			 }
+			 
+	 }
+
+		public static HashMap<String, Object> retrieveCostAndCapacity(TravelPackage travelPackageDTO,
+				String activtyName, String destinationName) {
+			HashMap<String, Object> costCapacityMap = null;
+			for (Destination destination : travelPackageDTO.getItinerary()) {
+				if (destination.getDestinationName().equalsIgnoreCase(destinationName)) {
+					for (Activity activity : destination.getActivitiesList()) {
+						if (activity.getActivityName().equalsIgnoreCase(activtyName)) {
+							costCapacityMap = new HashMap<String, Object>();
+							costCapacityMap.put("cost", activity.getCost());
+							costCapacityMap.put("capacity", activity.getCapacity());
+						}
+					}
+
+				}
+			}
+			return costCapacityMap;
+		}
+
+	  public static void updateCapacity(Connection connection,String activtyName,int updatedCapacity) throws SQLException {
+		  String sql = "update activities set capacity=? where activity_name=?";
+		  try(PreparedStatement stmt = connection.prepareStatement(sql)){
+			  stmt.setInt(1, updatedCapacity);
+			  stmt.setString(2, activtyName);
+			  stmt.executeUpdate();
+		  }
+	  }
+	  public static void updatePassenger(Connection connection,TravelPackage travelPackageDTO,Passenger passenger) throws SQLException {
+		  String sql = "update passengers set travel_package_id=? where passenger_name=? and passenger_number=?";
+		  try(PreparedStatement stmt = connection.prepareStatement(sql)){
+			  stmt.setInt(1, travelPackageDTO.getId());
+			  stmt.setString(2, passenger.getPassengerName());
+			  stmt.setString(3, passenger.getPassengerName());
+			  stmt.executeUpdate();
+		  }
+	  }
+
+}

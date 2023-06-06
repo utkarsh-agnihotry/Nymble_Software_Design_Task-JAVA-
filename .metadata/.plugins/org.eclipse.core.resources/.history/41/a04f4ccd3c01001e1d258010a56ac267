@@ -1,0 +1,67 @@
+package utill;
+
+import java.sql.*;
+
+import model.Activity;
+import model.Destination;
+import model.Passenger;
+import model.StandardPassenger;
+import model.TravelPackage;
+public class DataRetrieval {
+	
+	@SuppressWarnings("unused")
+	private static void retrieveDestinationsFromDatabase(Connection connection, TravelPackage travelPackage) throws SQLException {
+        String sql = "SELECT destination_name FROM destinations WHERE travel_package_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, travelPackage.getId()); 
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String destinationName = resultSet.getString("destination_name");
+                    Destination destination = new Destination(destinationName);
+
+                    
+                    retrieveActivitiesFromDatabase(connection, destination);
+
+                    travelPackage.addDestination(destination);
+                }
+            }
+        }
+    }
+	 private static void retrieveActivitiesFromDatabase(Connection connection, Destination destination) throws SQLException {
+	        String sql = "SELECT activity_name, description, cost, capacity FROM activities WHERE destination_id = ?";
+	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	            statement.setInt(1, destination.getId()); 
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                while (resultSet.next()) {
+	                    String activityName = resultSet.getString("activity_name");
+	                    String description = resultSet.getString("description");
+	                    double cost = resultSet.getDouble("cost");
+	                    int capacity = resultSet.getInt("capacity");
+	                    Activity activity = new Activity(activityName, description, cost, capacity);
+	                    destination.addActivity(activity);
+	                }
+	            }
+	        }
+	    }
+	
+	 @SuppressWarnings("unused")
+	private static void retrievePassengersFromDatabase(Connection connection, TravelPackage travelPackage) throws SQLException {
+	        String sql = "SELECT passenger_name, passenger_number FROM passengers WHERE travel_package_id = ?";
+	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	            statement.setInt(1, travelPackage.getId()); // Assuming there's a unique ID for each travel package in the database
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                while (resultSet.next()) {
+	                    String passengerName = resultSet.getString("passenger_name");
+	                    int passengerNumber = resultSet.getInt("passenger_number");
+	                    Passenger passenger = new Passenger(passengerName, passengerNumber);
+	                    travelPackage.addPassenger(passenger);
+	                }
+	            }
+	        }
+	    }
+
+	    
+
+	  
+
+}

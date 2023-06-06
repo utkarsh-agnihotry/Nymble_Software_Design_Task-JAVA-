@@ -1,0 +1,7 @@
+package model;
+
+public class Transaction {
+	private String passengerName;
+	private ArrayList<String> activitiesSelected;
+	private double updatedWalletBAlance;
+}

@@ -1,0 +1,32 @@
+package runner;
+
+import model.Activity;
+import model.Destination;
+import model.TravelPackage;
+import model.Passenger;
+
+public class PassengersDetails {
+	public void printItinerary(TravelPackage travelPackageDTO) {
+        System.out.println("Travel Package: " + travelPackageDTO.getPackageName());
+        for (Destination destination : travelPackageDTO.getItinerary()) {
+            System.out.println("Destination: " + destination.getDestinationName());
+            for (Activity activity : destination.getActivitiesList()) {
+                System.out.println("Activity: " + activity.getActivityName());
+                System.out.println("Description: " + activity.getDescription());
+                System.out.println("Cost: " + activity.getCost());
+                System.out.println("Capacity: " + activity.getCapacity());
+            }
+            System.out.println();
+        }
+    }
+	
+	public void printPassengerList(TravelPackage travelPackageDTO) {
+        System.out.println("Travel Package: " + travelPackageDTO.getPackageName());
+        System.out.println("Passenger Capacity: " + travelPackageDTO.getPassengerCapacity());
+        System.out.println("Number of Passengers Enrolled: " + travelPackageDTO.getpList().size());
+        for (Passenger passenger : travelPackageDTO.getpList()) {
+            System.out.println("Passenger Name: " + passenger.getPassengerName());
+            System.out.println("Passenger Number: " + passenger.getPassengerNumber());
+        }
+    }
+}

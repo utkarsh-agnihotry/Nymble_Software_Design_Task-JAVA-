@@ -1,0 +1,5 @@
+package model;
+
+public class Standard extends Passenger{
+
+}

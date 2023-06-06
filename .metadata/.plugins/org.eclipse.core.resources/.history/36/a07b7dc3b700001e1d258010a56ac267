@@ -1,0 +1,26 @@
+package model;
+
+import java.util.ArrayList;
+
+public class Destination {
+	
+	private String destinationName;
+	private ArrayList<Activities> activitiesList;
+	public String getDestinationName() {
+		return destinationName;
+	}
+	public void setDestinationName(String destinationName) {
+		this.destinationName = destinationName;
+	}
+	public ArrayList<Activities> getActivitiesList() {
+		return activitiesList;
+	}
+	public void setActivitiesList(ArrayList<Activities> activitiesList) {
+		this.activitiesList = activitiesList;
+	}
+	@Override
+	public String toString() {
+		return "Destination [destinationName=" + destinationName + ", activitiesList=" + activitiesList + "]";
+	}
+
+}

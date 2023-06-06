@@ -1,0 +1,44 @@
+package runner;
+import java.sql.*;
+
+import model.TravelPackage;
+import utill.DataRetrieval;
+
+public class TravelAgency {
+	private static final String DB_URL = "jdbc:mysql://localhost/nymbletms";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "root";
+    
+    
+	public static void main(String[] args) {
+		try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            // Example usage of the TravelPackage class
+            TravelPackage travelPackage = new TravelPackage("Europe Tour", 10);
+
+            // Retrieve destinations and activities from the database using JDBC
+            retrieveDestinationsFromDatabase(connection, travelPackage);
+
+            travelPackage.printItinerary();
+
+            // Retrieve passengers from the database using JDBC
+            retrievePassengersFromDatabase(connection, travelPackage);
+
+            travelPackage.printPassengerList();
+
+            // Retrieve details of an individual passenger from the database using JDBC
+            Passenger passenger1 = travelPackage.getPassengers().get(0);
+            retrievePassengerDetailsFromDatabase(connection, passenger1);
+
+            travelPackage.printPassengerDetails(passenger1);
+
+            // Retrieve available activities from the database using JDBC
+            retrieveAvailableActivitiesFromDatabase(connection, travelPackage);
+
+            travelPackage.printAvailableActivities();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+	}
+
+}

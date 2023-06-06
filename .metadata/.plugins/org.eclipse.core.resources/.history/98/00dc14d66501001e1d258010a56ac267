@@ -1,0 +1,61 @@
+package runner;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Scanner;
+
+import model.Passenger;
+import model.TravelPackage;
+import utill.DataRetrieval;
+
+public class TravelAgency {
+	private static final String DB_URL = "jdbc:mysql://localhost/nymbletms";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "root";
+    
+    
+	public static void main(String[] args) {
+		try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+           System.out.println("Please enter your USER_CRED");
+           Scanner sc = new Scanner(System.in);
+           String name = sc.nextLine();
+           int pNumber = sc.nextInt();
+           Passenger passenger=DataRetrieval.retrievePassengersFromDatabase(connection,name,pNumber);
+           if(Objects.isNull(passenger)) {
+        	   System.out.println("Not registered customer please signup");
+        	   System.exit(1);
+           }
+           String welcmMsq = "Hi! "+passenger.getPassengerName()+" Welcome to Nymble's Make your trip";
+           System.out.println(welcmMsq);
+           double balance = passenger.getWalletBalance();
+           String ptype = passenger.getPassengerType();
+           System.out.println("your wallet ballane as of now is "+balance+" and you are our's "+ptype+"passenger");
+           
+           /////////
+           
+           ArrayList<TravelPackage> packageList= DataRetrieval.retrieveTravelPackageFromDB(connection);
+           System.out.println("List of available Packages are");
+           
+           for (TravelPackage i : packageList) {
+        	   System.out.println(i.getId()+"st package name: "+i.getPackageName());
+        	   System.out.println("Capacity left for "+i.getId()+" Package is "+i.getPassengerCapacity());
+           }
+           System.out.println("Please select a package name");
+           System.out.println();
+           String selectedPackageName = sc.nextLine();
+           for (TravelPackage i : packageList) {
+        	   if(i.getPackageName() == selectedPackageName) {
+        		   PassengersDetails.printItinerary(i);
+        	   }
+        	   
+           }
+           
+           
+           sc.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+	}
+
+}

@@ -1,0 +1,41 @@
+package runner;
+
+import java.util.ArrayList;
+
+import model.Activity;
+import model.Destination;
+import model.GoldPassenger;
+import model.Passenger;
+import model.PremiumPassenger;
+import model.StandardPassenger;
+import model.TravelPackage;
+
+public class Booking {
+	
+	private final static double GOLDDICOUNT=0.9;
+
+	
+	public static double packageCost(String passengerType,int numberOfAdult,double cost) {
+		double actualCost = cost;
+		if(passengerType.equalsIgnoreCase("gold")) {
+			return actualCost*GOLDDICOUNT*numberOfAdult;
+		}
+		else if(passengerType.equalsIgnoreCase("standard")) {
+			return actualCost*numberOfAdult;
+		}
+		else {
+			return 0.0;
+		}
+	}
+	
+	public boolean capacityCheck(Activity activityDTO,Passenger passengerDTO) {
+		int capacity =activityDTO.getCapacity();
+		double activityCost = activityDTO.getCost();
+		if(capacity>0 && passengerDTO.getWalletBalance()>=activityCost) 
+			return true;
+		
+		else
+			return false;
+	}
+	
+}

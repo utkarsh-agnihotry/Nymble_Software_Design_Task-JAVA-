@@ -1,0 +1,60 @@
+package runner;
+
+import java.util.ArrayList;
+
+import model.Activity;
+import model.Destination;
+import model.GoldPassenger;
+import model.Passenger;
+import model.PremiumPassenger;
+import model.StandardPassenger;
+import model.TravelPackage;
+
+public class Booking {
+	
+	private final static double GOLDDICOUNT=0.9;
+
+
+//	public double packageCost(ArrayList<Destination> itineraryDTO,Passenger passenger) {
+//		double cost=0.0;
+//		 for(int i =0;i<itineraryDTO.size();i++) {
+//			 ArrayList<Activity> activityDTO=itineraryDTO.get(i).getActivitiesList();
+//			 for(int j=0;j<activityDTO.size();j++) {
+//				 double eachActivityCost=activityDTO.get(i).getCost();
+//				 cost=cost+eachActivityCost;
+//			 }
+//		 }
+//		 if(passenger instanceof StandardPassenger) 
+//			 return cost;
+//		 else if(passenger instanceof GoldPassenger)
+//			 return cost*GOLDDICOUNT;
+//		 else if(passenger instanceof PremiumPassenger)
+//			 return 0.0;
+//		 else
+//			 return cost;
+//	}
+	
+	public static double packageCost(String passengerType,int numberOfAdult,double cost) {
+		double actualCost = cost;
+		if(passengerType.equalsIgnoreCase("gold")) {
+			return actualCost*GOLDDICOUNT;
+		}
+		else if(passengerType.equalsIgnoreCase("standard")) {
+			return actualCost;
+		}
+		else {
+			return 0.0;
+		}
+	}
+	
+	public boolean capacityCheck(Activity activityDTO,Passenger passengerDTO) {
+		int capacity =activityDTO.getCapacity();
+		double activityCost = activityDTO.getCost();
+		if(capacity>0 && passengerDTO.getWalletBalance()>=activityCost) 
+			return true;
+		
+		else
+			return false;
+	}
+	
+}

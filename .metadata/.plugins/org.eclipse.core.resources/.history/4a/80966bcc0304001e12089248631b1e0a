@@ -1,0 +1,161 @@
+package runner;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+
+import static org.mockito.Mockito.*;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+
+
+import model.Passenger;
+import model.TravelPackage;
+import runner.Booking;
+import runner.TravelAgency;
+import utill.DataRetrieval;
+class TravelAgencyTest {
+
+
+	@Mock
+	private Connection connectionMock;
+
+	@BeforeEach
+	void setUp() throws SQLException {
+		when(connectionMock.createStatement()).thenReturn(null);
+	}
+
+	@Test
+	void testPassengerSignUp_PassengerFound() throws SQLException {
+		// Arrange
+		String name = "John";
+		int pNumber = 12345;
+		Passenger passenger = new Passenger("John",12345);
+		passenger.setPassengerName("John");
+		passenger.setWalletBalance(100.0);
+		passenger.setPassengerType("Standard");
+
+		when(DataRetrieval.retrievePassengersFromDatabase(connectionMock, name, pNumber)).thenReturn(passenger);
+
+		// Act
+		Passenger result = TravelAgency.passsengerSignUp(connectionMock, name, pNumber);
+
+		// Assert
+		assertEquals(passenger, result);
+	}
+
+	@Test
+	void testPassengerSignUp_PassengerNotFound() throws SQLException {
+		// Arrange
+		String name = "John";
+		int pNumber = 12345;
+
+		when(DataRetrieval.retrievePassengersFromDatabase(connectionMock, name, pNumber)).thenReturn(null);
+
+		// Act and Assert
+		assertThrows(SystemExitException.class, () -> TravelAgency.passsengerSignUp(connectionMock, name, pNumber));
+	}
+
+	@Test
+	void testPackageOption() throws SQLException {
+		// Arrange
+		String selectedPackageName = "Package A";
+		TravelPackage travelPackage = new TravelPackage();
+		travelPackage.setId(1);
+		travelPackage.setPackageName("Package A");
+		travelPackage.setPassengerCapacity(10);
+
+		when(DataRetrieval.retrieveTravelPackageFromDB(connectionMock)).thenReturn(List.of(travelPackage));
+
+		// Act
+		TravelPackage result = TravelAgency.packageOption(connectionMock, selectedPackageName);
+
+		// Assert
+		assertEquals(travelPackage, result);
+	}
+
+	@Test
+	void testChoosePackage_InsufficientCapacity() {
+		// Arrange
+		TravelPackage selectPackage = new TravelPackage();
+		selectPackage.setPassengerCapacity(5);
+
+		Passenger passenger = new Passenger("John",12345);
+		passenger.setWalletBalance(100.0);
+
+		HashMap<String, Object> costCapacityMap = new HashMap<>();
+		costCapacityMap.put("capacity", 3);
+		costCapacityMap.put("cost", 50.0);
+
+		// Act and Assert
+		assertThrows(SystemExitException.class,
+				() -> TravelAgency.choosePackage(connectionMock, selectPackage, passenger, "Activity A", "Destination A", 6));
+	}
+
+	@Test
+	void testChoosePackage_InsufficientBalance() {
+		// Arrange
+		TravelPackage selectPackage = new TravelPackage();
+		selectPackage.setPassengerCapacity(10);
+
+		Passenger passenger = new Passenger();
+		passenger.setWalletBalance(50.0);
+
+		HashMap<String, Object> costCapacityMap = new HashMap<>();
+		costCapacityMap.put("capacity", 8);
+		costCapacityMap.put("cost", 100.0);
+
+		// Act and Assert
+		assertThrows(SystemExitException.class,
+				() -> TravelAgency.choosePackage(connectionMock, selectPackage, passenger, "Activity A", "Destination A", 2));
+	}
+
+	@Test
+	void testChoosePackage_ValidSelection() {
+		// Arrange
+		TravelPackage selectPackage = new TravelPackage();
+		selectPackage.setPassengerCapacity(10);
+
+		Passenger passenger = new Passenger();
+		passenger.setWalletBalance(150.0);
+
+		HashMap<String, Object> costCapacityMap = new HashMap<>();
+		costCapacityMap.put("capacity", 8);
+		costCapacityMap.put("cost", 100.0);
+
+		// Act
+		HashMap<String, Object> result = TravelAgency.choosePackage(connectionMock, selectPackage, passenger, "Activity A", "Destination A", 2);
+
+		// Assert
+		assertEquals(costCapacityMap, result);
+	}
+
+	@Test
+	void testBookTravelPackage() throws SQLException {
+		// Arrange
+		TravelPackage selectPackage = new TravelPackage();
+		selectPackage.setPassengerCapacity(10);
+
+		Passenger passenger = new Passenger();
+		passenger.setWalletBalance(150.0);
+
+		HashMap<String, Object> costCapacityMap = new HashMap<>();
+		costCapacityMap.put("capacity", 8);
+		costCapacityMap.put("cost", 100.0);
+
+		// Mocking the static methods of DataRetrieval class
+		mockStatic(DataRetrieval.class);
+		when(DataRetrieval.updateCapacity(connectionMock, "Activity A", 6)).thenReturn(null);
+		when(DataRetrieval.updatePassenger(connectionMock, selectPackage, passenger, 50.0)).thenReturn(null);
+
+		// Act
+		TravelAgency.bookTravelPackage(connectionMock, selectPackage, passenger, costCapacityMap, "Activity A", 6);
+
+		// Assert
+		// Perform necessary assertions based on the expected behavior of the method
+	}
+}

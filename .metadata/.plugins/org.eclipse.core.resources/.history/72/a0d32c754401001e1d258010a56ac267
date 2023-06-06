@@ -1,0 +1,44 @@
+package model;
+
+public class Passenger {
+	
+	private String passengerName;
+	private int passengerNumber;
+	private String passengerType;
+	protected double walletBalance;
+	
+	public Passenger(String name, int passengerNumber) {
+        this.passengerName = name;
+        this.passengerNumber = passengerNumber;
+    }
+	public String getPassengerName() {
+		return passengerName;
+	}
+	public void setPassengerName(String passengerName) {
+		this.passengerName = passengerName;
+	}
+	public int getPassengerNumber() {
+		return passengerNumber;
+	}
+	public void setPassengerNumber(int passengerNumber) {
+		this.passengerNumber = passengerNumber;
+	}
+	public String getPassengerType() {
+		return passengerType;
+	}
+	public void setPassengerType(String passengerType) {
+		this.passengerType = passengerType;
+	}
+	public double getWalletBalance() {
+		return walletBalance;
+	}
+	public void setWalletBalance(double walletBalance) {
+		this.walletBalance = walletBalance;
+	}
+	@Override
+	public String toString() {
+		return "Passenger [passengerName=" + passengerName + ", passengerNumber=" + passengerNumber + ", passengerType="
+				+ passengerType + ", walletBalance=" + walletBalance + "]";
+	}
+
+}

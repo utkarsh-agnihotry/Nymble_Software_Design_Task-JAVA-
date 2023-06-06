@@ -1,0 +1,64 @@
+package runner;
+
+import model.Activity;
+import model.Destination;
+import model.TravelPackage;
+import model.Passenger;
+
+public class PassengersDetails {
+	public static void printItinerary(TravelPackage travelPackageDTO) {
+        System.out.println("Travel Package: " + travelPackageDTO.getPackageName());
+        for (Destination destination : travelPackageDTO.getItinerary()) {
+            System.out.println("Destination: " + destination.getDestinationName());
+            for (Activity activity : destination.getActivitiesList()) {
+                System.out.println("Activity: " + activity.getActivityName());
+                System.out.println("Description: " + activity.getDescription());
+                System.out.println("Cost: " + activity.getCost());
+                System.out.println("Capacity: " + activity.getCapacity());
+            }
+            System.out.println("--------------------------------");
+        }
+    }
+	
+	public static void printPassengerList(TravelPackage travelPackageDTO) {
+        System.out.println("Travel Package: " + travelPackageDTO.getPackageName());
+        System.out.println("Passenger Capacity: " + travelPackageDTO.getPassengerCapacity());
+        System.out.println("Number of Passengers Enrolled: " + travelPackageDTO.getpList().size());
+        for (Passenger passenger : travelPackageDTO.getpList()) {
+            System.out.println("Passenger Name: " + passenger.getPassengerName());
+            System.out.println("Passenger Number: " + passenger.getPassengerNumber());
+        }
+    }
+	
+	 public static void printPassengerDetails(Passenger passenger,TravelPackage travelPackageDTO) {
+	        System.out.println("Passenger Name: " + passenger.getPassengerName());
+	        System.out.println("Passenger Number: " + passenger.getPassengerNumber());
+	        System.out.println("Balance: " + passenger.getWalletBalance());
+
+	        System.out.println("Activities Signed Up:");
+	        for (Destination destination : travelPackageDTO.getItinerary()) {
+	            for (Activity activity : destination.getActivitiesList()) {
+	                if (activity.getCapacity() > 0) {
+	                    System.out.println("Activity: " + activity.getActivityName());
+	                    System.out.println("Destination: " + destination.getDestinationName());
+	                    Booking bookingObj = new Booking();
+	                    double price = bookingObj.packageCost(travelPackageDTO.getItinerary(), passenger);
+	                    System.out.println("Price Paid: " + price);
+	                }
+	            }
+	        }
+	    }
+	 
+	 public static void printAvailableActivities(TravelPackage travelPackageDTO) {
+	        System.out.println("Available Activities:");
+	        for (Destination destination : travelPackageDTO.getItinerary()) {
+	            for (Activity activity : destination.getActivitiesList()) {
+	                if (activity.getCapacity() > 0) {
+	                    System.out.println("Activity: " + activity.getActivityName());
+	                    System.out.println("Destination: " + destination.getDestinationName());
+	                    System.out.println("Spaces Available: " + activity.getCapacity());
+	                }
+	            }
+	        }
+	    }
+}

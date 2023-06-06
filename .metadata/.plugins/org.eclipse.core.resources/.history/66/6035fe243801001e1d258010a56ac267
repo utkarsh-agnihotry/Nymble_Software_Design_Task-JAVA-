@@ -1,0 +1,94 @@
+package utill;
+
+import java.sql.*;
+
+import model.Activity;
+import model.Destination;
+import model.Passenger;
+import model.TravelPackage;
+public class DataRetrieval {
+	
+	@SuppressWarnings("unused")
+	private static void retrieveDestinationsFromDatabase(Connection connection, TravelPackage travelPackage) throws SQLException {
+        String sql = "SELECT destination_name FROM destinations WHERE travel_package_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, travelPackage.getId()); 
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String destinationName = resultSet.getString("destination_name");
+                    Destination destination = new Destination(destinationName);
+
+                    // Retrieve activities for the current destination
+                    retrieveActivitiesFromDatabase(connection, destination);
+
+                    travelPackage.addDestination(destination);
+                }
+            }
+        }
+    }
+	 private static void retrieveActivitiesFromDatabase(Connection connection, Destination destination) throws SQLException {
+	        String sql = "SELECT activity_name, description, cost, capacity FROM activities WHERE destination_id = ?";
+	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	            statement.setInt(1, destination.getId()); 
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                while (resultSet.next()) {
+	                    String activityName = resultSet.getString("activity_name");
+	                    String description = resultSet.getString("description");
+	                    double cost = resultSet.getDouble("cost");
+	                    int capacity = resultSet.getInt("capacity");
+	                    Activity activity = new Activity(activityName, description, cost, capacity);
+	                    destination.addActivity(activity);
+	                }
+	            }
+	        }
+	    }
+	
+	 private static void retrievePassengersFromDatabase(Connection connection, TravelPackage travelPackage) throws SQLException {
+	        String sql = "SELECT passenger_name, passenger_number FROM passengers WHERE travel_package_id = ?";
+	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	            statement.setInt(1, travelPackage.getId()); // Assuming there's a unique ID for each travel package in the database
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                while (resultSet.next()) {
+	                    String passengerName = resultSet.getString("passenger_name");
+	                    int passengerNumber = resultSet.getInt("passenger_number");
+	                    Passenger passenger = new Passenger(passengerName, passengerNumber);
+	                    travelPackage.addPassenger(passenger);
+	                }
+	            }
+	        }
+	    }
+
+	    private static void retrievePassengerDetailsFromDatabase(Connection connection, Passenger passenger) throws SQLException {
+	        String sql = "SELECT balance FROM passengers WHERE passenger_number = ?";
+	        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	            statement.setInt(1, passenger.getPassengerNumber());
+	            try (ResultSet resultSet = statement.executeQuery()) {
+	                if (resultSet.next()) {
+	                    double balance = resultSet.getDouble("balance");
+	                    if (passenger instanceof StandardPassenger) {
+	                        ((StandardPassenger) passenger).setBalance(balance);
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    private static void retrieveAvailableActivitiesFromDatabase(Connection connection, TravelPackage travelPackage) throws SQLException {
+	        for (Destination destination : travelPackage.getDestinations()) {
+	            for (Activity activity : destination.getActivities()) {
+	                String sql = "SELECT COUNT(*) AS enrolled_passengers FROM bookings WHERE activity_id = ?";
+	                try (PreparedStatement statement = connection.prepareStatement(sql)) {
+	                    statement.setInt(1, activity.getId()); // Assuming there's a unique ID for each activity in the database
+	                    try (ResultSet resultSet = statement.executeQuery()) {
+	                        if (resultSet.next()) {
+	                            int enrolledPassengers = resultSet.getInt("enrolled_passengers");
+	                            int availableSpaces = activity.getCapacity() - enrolledPassengers;
+	                            activity.setAvailableSpaces(availableSpaces);
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+}
