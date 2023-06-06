@@ -1,4 +1,3 @@
-Certainly! Here's an example of a README file for the GitHub repository you provided:
 
 # Nymble Software Design Task (Java)
 
